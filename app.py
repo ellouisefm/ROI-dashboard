@@ -1,15 +1,8 @@
 import dash
 import dash_bootstrap_components as dbc
 
-# # meta_tags are required for the app layout to be mobile responsive
-# app = dash.Dash(__name__, suppress_callback_exceptions=True,
-#                 # for mobile app
-#                 # meta_tags=[{'name': 'viewport',
-#                 #             'content': 'width=device-width, initial-scale=1.0'}]
-#                 # )
-# server = app.server
-
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
-# app = dash.Dash(__name__)
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
 app.title = 'ROI Dashboard'
+# added
+server.secret_key = os.environ.get('secret_key', 'secret')
