@@ -7,7 +7,7 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 
 from app import app, server
-from apps import roi_page
+from apps import roi_page, global_sales
 
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -49,9 +49,9 @@ def update_output(n_clicks, uname, passw):
     if uname =='' or uname == None or passw =='' or passw == None:
         print('no user')
         return '/'
-    # elif uname not in li:
-    #     print('incorrect user')
-    #     return '/incorrect'
+    elif uname not in li:
+        print('incorrect user')
+        return '/incorrect'
     elif li[uname]==passw:
         print('correct')
         return '/roi_dashboard'
@@ -72,9 +72,9 @@ def display_page(pathname):
     elif pathname == '/roi_dashboard':
         print('goes here')
         return "", roi_page.get_dashboard_layout()
-    # elif pathname == '/incorrect':
-    #     print('goes here')
-    #     return index_page, global_sales.get_dashboard2_layout()
+    elif pathname == '/incorrect':
+        print('goes here')
+        return index_page, global_sales.get_dashboard2_layout()
     else:
         return index_page, ""
 
