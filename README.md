@@ -2,42 +2,38 @@
 
 This repository contain source code for ROI Dashboard, a multipage application created using Plotly Dash. 
 
-## Running the app
+Example of app in action: shows login, calculate in dashboard, and logout:
 
-In order to run the app locally, you'll need to install [Plotly Dash](https://dash.plot.ly/installation) and its dependencies. Once you've installed Dash and it's dependencies, run the following line of code in your terminal:
+![](demo.gif)
 
-```
-python index.py
-```
+## Multipage App Folder Structure
 
-## Dash Code Structure
+For this app, we followed this folder structure:
 
 ```
-plotly-dash-multipage-template
+ROI-dashboard
 │   index.py
 |   app.py
-|   mydatastore.csv
-│
 └───apps
-│   │   dashboard.py
-|   |   dashboard2.py
-│   
-└───assets
-│   │   main.css
-│   │   gtag.js
+│   │   roi_page.py
 ```
 
-The main app runs from index.py in the top-level folder and pairs alongside required files for a Plotly Dash app. Currently, the architecture is set up to run from one main file, index.py, and will house a navigation and callbacks with/to other dashboards within the /apps/ folder.
+## Running the app
+
+The index.py contains the main page of the app. It updates the page contents and url to be able to access other pages and dashboard. It contains the login, error login, and logout button as well.
+
+roi_page.py contains the dashboard and other functionalities of the dashboard (calculate ROI, save, delete, edit).
 
 ## Data
 
-Currently, this file structure uses a blank csv and the dashboard is built from that datastore.
+User and password database is stored in the user_management.db. For the dashboard scenarios, they are stored in the the scenarios.db.
+
+## Other files
+
+Other files include:
+1. `requirements.txt` - contains packages needed for deployment
+2. `Procfile` - declares the command to be able to run the index.py when deployed
 
 ## Deployment
 
-To deploy, you can run it locally or set up Heroku via the [instructions linked here](https://dash.plot.ly/deployment).
-
-## Useful Links
-
-* [Plotly Dash Documentation](https://dash.plot.ly/)
-* [Plotly Multi-Page Documentation](https://dash.plot.ly/urls)
+The app can run locally, but you may also view it via Heroku the [roi-dashboard](https://roi-dashboard.herokuapp.com/).
