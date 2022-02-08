@@ -1,4 +1,8 @@
+import os
+os.chdir(r'C:\Users\emendoza\Desktop\multipageapp\MultipageApp\MultipageApp')
+
 # import packages
+import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
@@ -92,17 +96,19 @@ err_index_page = html.Div([
              style={'display':'none'}
              )
     ])
-# log out button in dashboard
+
 logout_btn = html.Div([
-        html.Div("Hi, admin", id='hiUser', style = {'color':'white', 'margin-left':'2%', 'margin-top':'2px', 
+        html.Div(id='hiUser', style = {'color':'white', 'margin-left':'2%', 'margin-top':'2px', 
                                                     'width':'30%','display':'inline-block', 'font-size':'20px'}),
         html.A(
             html.Button('Logout', className = 'logout_btn',
                         style = {'color':'black', 'background-color':'rgb(211,211,211)', 
-                                'margin-left':'58%','margin-top':'4px','height':'30px' 
+                                'margin-left':'58%','margin-top':'4px','height':'30px',
+                                'borderRadius':5,'border-color':'#f5f5f5'
                                 }),
             href='/logout',
-            )
+            ),
+        # dcc.Store(id='hiUsermemory', storage_type='local')
     ], style = {'background-color':'rgb(0,123,255)', 'width':'100%', 'height':40}
     )
 
@@ -114,7 +120,6 @@ logout_btn = html.Div([
     State('passw', 'value')]
 )
 def update_output(n_clicks, uname, passw):
-    print('update_output')
     # added for user_mgt
     conn = sqlite3.connect('user_management.db')
     cur = conn.cursor()
@@ -127,39 +132,58 @@ def update_output(n_clicks, uname, passw):
 
     # li={'admin':'password', 'edcanoy':'eddyson', 'elmend':'ellouise'}
     if uname =='' or uname == None or passw =='' or passw == None:
-        print('no user')
         return '/'
     elif uname not in li:
-        print('incorrect user')
         return '/error'
     elif li[uname]==passw:
-        print('correct')
         return '/roi-dashboard'
     else:
-        print('else')
         return '/'
 
 # callback for page contents
 @app.callback(
     [Output('page', 'children'),
      Output('page2', 'children'),
-     Output('page3', 'children')],
-    [Input('url', 'pathname')]
+     Output('page3', 'children')
+     ],
+    [Input('url', 'pathname')],
 )
 def display_page(pathname):
-    print(pathname)
     if pathname == '/':
         return index_page, "", ""
     elif pathname == '/roi-dashboard':
-        print('goes here')
         return "",logout_btn, roi_page.get_dashboard_layout()
     elif pathname == '/error':
-        print('goes here')
         return "", "", err_index_page
     elif pathname == '/logout':
         return index_page, "", ""
     else:
         return index_page, "", ""
+
+# hi user
+# @app.callback(
+#     Output('hiUsermemory', 'data'),
+#     [Input('login', 'n_clicks')],
+#     [State('user', 'value')])
+# def save_memory(login, user):
+#     print(user)
+#     if login > 0:
+#         print(user)
+#         hiUsermemory = user
+#         print(hiUsermemory)
+#         return hiUsermemory
+
+# @app.callback(
+#     [Output('hiUser', 'children')],
+#     [Input('url', 'pathname')],
+#     [State('hiUsermemory','data')]
+#     )
+# def load_memory(pathname, hiUsermemory):
+#     if pathname == '/roi-dashboard':
+#         hiUser_txt = "Hi, "+str(hiUsermemory)
+#         print(hiUser_txt)
+#     return [hiUser_txt]
+
 
 if __name__ == '__main__':
     app.run_server()
