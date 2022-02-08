@@ -2,7 +2,7 @@
 
 This repository contain source code for ROI Dashboard, a multipage application created using Plotly Dash. 
 
-App in action: shows login, calculate in dashboard, and logout
+App in action: shows login, calculate in dashboard, logout, and error login
 
 ![](demo.gif)
 
