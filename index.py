@@ -1,6 +1,3 @@
-import os
-os.chdir(r'C:\Users\emendoza\Desktop\multipageapp\MultipageApp\MultipageApp')
-
 # import packages
 import dash
 import dash_core_components as dcc
