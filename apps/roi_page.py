@@ -8,6 +8,7 @@ import plotly.graph_objs as go
 import base64
 import numpy as np
 import sqlite3
+import dash_table
 from dash.exceptions import PreventUpdate
 from app import app
 def get_dashboard_layout():
@@ -137,26 +138,32 @@ def get_dashboard_layout():
                                           config = {
                                                   'displayModeBar':False,
                                                   'modeBarButtonsToRemove': ['pan2d', 'lasso2d']}),
-                                # html.Hr(),
-                                # html.Div("Add New Users: ", style={'margin-left':'10%'}),
-                                # html.Div([
-                                #     dcc.Input(id="newuser", type="text", placeholder="New Username",className="nunamebox",
-                                #               style={'margin-left':'10%','width':'200px','height':'45px',
-                                #                  'padding':'10px','margin-top':'5px','font-size':'16px',
-                                #                  'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
-                                #         # style = {'width':'50%', 'display':'inline-block'}
-                                #     dcc.Input(id="newpassw", type="text", placeholder="New Password",className="npwordbox",
-                                #               style={'margin-left':'0%','width':'200px','height':'45px',
-                                #                      'padding':'10px','margin-top':'5px','font-size':'16px',
-                                #                      'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
-                                #     html.Button(id = 'createButton',
-                                #         children = 'Create User',
-                                #         n_clicks = 0, className='createbtn',
-                                #         style = {'fontSize': '15px', 'color':'white', 'background-color':'rgb(0,123,255)', 'float':'middle', 'border-radius':'5px', 'border':'5px',
-                                #                  'margin-left':'30%','margin-top':'5px'}
-                                #         ),
-                                #     ]),
-                                # html.Div(id='createNew')
+                                html.Hr(),
+                                html.Div("Add New Users: ", style={'margin-left':'10%'}),
+                                html.Div([
+                                    dcc.Input(id="newuser", type="text", placeholder="New Username",className="nunamebox",
+                                              style={'margin-left':'10%','width':'200px','height':'45px',
+                                                  'padding':'10px','margin-top':'5px','font-size':'16px',
+                                                  'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
+                                        # style = {'width':'50%', 'display':'inline-block'}
+                                    dcc.Input(id="newpassw", type="text", placeholder="New Password",className="npwordbox",
+                                              style={'margin-left':'0%','width':'200px','height':'45px',
+                                                      'padding':'10px','margin-top':'5px','font-size':'16px',
+                                                      'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
+                                    html.Button(id = 'createButton',
+                                        children = 'Create User',
+                                        n_clicks = 0, className='createbtn',
+                                        style = {'fontSize': '15px', 'color':'white', 'background-color':'rgb(0,123,255)', 'float':'middle', 'border-radius':'5px', 'border':'5px',
+                                                  'margin-left':'10%','margin-top':'5px'}
+                                        ),
+                                    html.Button(id = 'viewButton',
+                                        children = 'View Accounts',
+                                        n_clicks = 0, className='viewbtn',
+                                        style = {'fontSize': '15px', 'color':'white', 'background-color':'rgb(0,123,255)', 'float':'middle', 'border-radius':'5px', 'border':'5px',
+                                                  'margin-left': '2%','margin-top':'5px'})
+                                    ]),
+                                html.Div(id='createNew'),
+                                dash_table.DataTable(id='userdatatable',row_selectable=True),
                         ], style = {'width':'35%', 'display':'inline-block', 'float':'right'})
                     ])
                 ])
@@ -444,36 +451,56 @@ def modifydatabase(sqlcommand, values):
     db.commit()
     db.close()
 
-### callback to create new user
-# @app.callback(
-#          [Output('createNew', 'children')],
-#          [Input('createButton', 'n_clicks')],
-#          [State('newuser','value'),
-#           State('newpassw','value')]
-#          )
-# def newuser(n_clicks, newuser, newpassw):
-#     sql = "SELECT max(id) as id FROM user_mgt;"
-#     df = querydatafromdatabase_nu(sql,[],["id"])
-#     ROI_id = int(df['id'][0])+1
-#     sqlinsert = "INSERT INTO user_mgt(user,passw,id) VALUES (?, ?, ?)"
-#     modifydatabase_nu(sqlinsert, (newuser,newpassw,ROI_id))
-#     error_handle = "New user: {} created.".format(newuser)
-#     return [error_handle]
+## create new user
+@app.callback(
+    [Output('userdatatable', 'data'),
+     Output('userdatatable', 'columns'),
+     Output('createNew', 'children')
+    ],
+    [Input('createButton', 'n_clicks'),
+     Input('viewButton', 'n_clicks')],
+    [State('newuser', 'value'),
+     State('newpassw', 'value')]
+    )
+def adduser(createButton,viewButton,newuser,newpassw):
+   ctx = dash.callback_context
+   if ctx.triggered:
+       eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+       if eventid =="createButton":
+           sql = "SELECT max(id) as mid FROM user_mgt"
+           df = querydatafromdatabase_nu(sql,[],["id"])
+           umgt_id = int(df['id'][0])+1
+           sqlinsert = "INSERT INTO user_mgt(user,passw,id) VALUES (?, ?, ?)"
+           #here to modify
+           modifydatabase_nu(sqlinsert, (newuser,newpassw,umgt_id))
+           sql = "SELECT * FROM user_mgt"
+           df = querydatafromdatabase_nu(sql,[],["user","passw","id"])
+           columns=[{"name": i, "id": i} for i in df.columns]
+           data=df.to_dict("rows")
+           new_create = "New Account: {} created".format(newuser)
+           return [data,columns,new_create]
+       elif eventid =="viewButton":
+           sql = "SELECT * FROM user_mgt"
+           df = querydatafromdatabase_nu(sql,[],["user","passw","id"])
+           columns=[{"name": i, "id": i} for i in df.columns]
+           data=df.to_dict("rows")
+           new_create = "Viewing Users data table"
+           return [data,columns,new_create]
+   else:
+      raise PreventUpdate
 
-# def querydatafromdatabase_nu(sql, values,dbcolumns):
-#     db = sqlite3.connect('user_management.db')
-#     cur = db.cursor()
-#     cur.execute(sql, values)
-#     rows = pd.DataFrame(cur.fetchall(), columns=dbcolumns)
-#     db.close()
-#     return rows
+def querydatafromdatabase_nu(sql, values,dbcolumns):
+    db = sqlite3.connect('user_management.db')
+    cur = db.cursor()
+    cur.execute(sql, values)
+    rows = pd.DataFrame(cur.fetchall(), columns=dbcolumns)
+    db.close()
+    return rows
 
-# def modifydatabase_nu(sqlcommand, values):
-#     db = sqlite3.connect('ROI.sqlite')
-#     cursor = db.cursor()
-#     cursor.execute(sqlcommand, values)
-#     db.commit()
-#     db.close()
-    
-    
+def modifydatabase_nu(sqlcommand, values):
+    db = sqlite3.connect('user_management.db')
+    cursor = db.cursor()
+    cursor.execute(sqlcommand, values)
+    db.commit()
+    db.close()
     
