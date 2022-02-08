@@ -10,12 +10,9 @@ import numpy as np
 import sqlite3
 from dash.exceptions import PreventUpdate
 from app import app
-# app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 def get_dashboard_layout():
 
     return[html.Div([
-        
-                html.Div(style = {'background-color':'rgb(0,123,255)', 'width':'100%', 'height':40}),
                 html.Div([
                         html.Div([
                                 html.H2("Return of Investments Inputs:", style = {'color':'rgb(0,123,255)', 'font':'Verdana'}),
@@ -139,7 +136,27 @@ def get_dashboard_layout():
                                 dcc.Graph(id = 'waterfall',
                                           config = {
                                                   'displayModeBar':False,
-                                                  'modeBarButtonsToRemove': ['pan2d', 'lasso2d']})
+                                                  'modeBarButtonsToRemove': ['pan2d', 'lasso2d']}),
+                                # html.Hr(),
+                                # html.Div("Add New Users: ", style={'margin-left':'10%'}),
+                                # html.Div([
+                                #     dcc.Input(id="newuser", type="text", placeholder="New Username",className="nunamebox",
+                                #               style={'margin-left':'10%','width':'200px','height':'45px',
+                                #                  'padding':'10px','margin-top':'5px','font-size':'16px',
+                                #                  'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
+                                #         # style = {'width':'50%', 'display':'inline-block'}
+                                #     dcc.Input(id="newpassw", type="text", placeholder="New Password",className="npwordbox",
+                                #               style={'margin-left':'0%','width':'200px','height':'45px',
+                                #                      'padding':'10px','margin-top':'5px','font-size':'16px',
+                                #                      'border-width':'3px','border-color':'#f5f5f5','borderRadius':5}),
+                                #     html.Button(id = 'createButton',
+                                #         children = 'Create User',
+                                #         n_clicks = 0, className='createbtn',
+                                #         style = {'fontSize': '15px', 'color':'white', 'background-color':'rgb(0,123,255)', 'float':'middle', 'border-radius':'5px', 'border':'5px',
+                                #                  'margin-left':'30%','margin-top':'5px'}
+                                #         ),
+                                #     ]),
+                                # html.Div(id='createNew')
                         ], style = {'width':'35%', 'display':'inline-block', 'float':'right'})
                     ])
                 ])
@@ -427,5 +444,36 @@ def modifydatabase(sqlcommand, values):
     db.commit()
     db.close()
 
-# if __name__ == '__main__':
-#     app.run_server()
+### callback to create new user
+# @app.callback(
+#          [Output('createNew', 'children')],
+#          [Input('createButton', 'n_clicks')],
+#          [State('newuser','value'),
+#           State('newpassw','value')]
+#          )
+# def newuser(n_clicks, newuser, newpassw):
+#     sql = "SELECT max(id) as id FROM user_mgt;"
+#     df = querydatafromdatabase_nu(sql,[],["id"])
+#     ROI_id = int(df['id'][0])+1
+#     sqlinsert = "INSERT INTO user_mgt(user,passw,id) VALUES (?, ?, ?)"
+#     modifydatabase_nu(sqlinsert, (newuser,newpassw,ROI_id))
+#     error_handle = "New user: {} created.".format(newuser)
+#     return [error_handle]
+
+# def querydatafromdatabase_nu(sql, values,dbcolumns):
+#     db = sqlite3.connect('user_management.db')
+#     cur = db.cursor()
+#     cur.execute(sql, values)
+#     rows = pd.DataFrame(cur.fetchall(), columns=dbcolumns)
+#     db.close()
+#     return rows
+
+# def modifydatabase_nu(sqlcommand, values):
+#     db = sqlite3.connect('ROI.sqlite')
+#     cursor = db.cursor()
+#     cursor.execute(sqlcommand, values)
+#     db.commit()
+#     db.close()
+    
+    
+    
